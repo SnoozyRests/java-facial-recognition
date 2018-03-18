@@ -1,0 +1,21 @@
+camera = web cam
+face Array = array
+cc = cascade classifier
+--------------------------------------------------------------------------------
+Function detect()
+Input: N/A
+Output: Edited video frame with detected faces.
+
+WHILE
+    grab current frame
+    detect faces with cc
+    store detection points in face Array
+
+
+    FOR(every entry face Array)
+        draw square around points / scalar
+    LOOP
+
+    convert to displayable format
+    display modified image
+LOOP
