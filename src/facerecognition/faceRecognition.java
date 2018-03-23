@@ -18,12 +18,16 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
+import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.videoio.VideoCapture;
 
 /**
- * @author Jacob Williams
+ * @author Jacob Williams - 15008632
+ * Contributors: n/a
+ * Function: Handles form load, detection, and capture mode.
+ * Notes: frame edit could be put in a function?
  */
 public class faceRecognition extends javax.swing.JFrame {
 
@@ -43,6 +47,8 @@ public class faceRecognition extends javax.swing.JFrame {
     MatOfRect mor = new MatOfRect();
     private cam cam = new cam();
     Thread t = new Thread(cam);
+    public cUser us = new cUser();
+    public DbBean db = new DbBean();
     
     class cam implements Runnable{
         @Override
@@ -53,43 +59,78 @@ public class faceRecognition extends javax.swing.JFrame {
             detect();
         }
     }
-//    public void detect2(){
-//        while(true){
-//            if(vc.grab()){
-//                try{
-//                      vc.read(frame);
-//                      face face = model.getface(frame.clone());
-//                      if(face != null){
-//                      Graphics graphic = camPanel.getGraphics();
-//                      Mat out = face.crop;
-//                      Imgcodecs.imencode(".bmp", out, mob);
-//                      Image im = ImageIO.read(new ByteArrayInputStream(mob.toArray()));
-//                      BufferedImage bi = (BufferedImage) im;
-//                      graphic.drawImage(bi, 0, 0, getWidth(), 
-//                                   getHeight(), 0, 0, bi.getWidth(), 
-//                                   bi.getHeight(), null);
-//                      }else{
-//                          System.out.println("Facemodel = null");
-//                      }
-//                }catch(IOException ex){
-//                    System.out.println(ex);
-//                }
-//            }
-//        }   
-//    }
     
     public void captureMode(){
         boolean userConf = false;
         try{
         while(!userConf){
-  
         String s = (String)JOptionPane.showInputDialog(null, 
                                                     "Please enter your ID",
                                                     "Enter ID",
                                                     JOptionPane.PLAIN_MESSAGE)
                                                     .trim();
         if(s.length() == 8 && s.matches("\\d+")){
-            
+            db.setUser(s);
+            int count = 0;
+            int index = 0;
+            int imgNum = us.getImageCount() + 1;
+            userConf = true;
+            //Mat frame = new Mat();
+            if(!vc.isOpened()){
+                System.out.println("ERROR IN CAPTURE MODE: CAMERA OPEN(?)");
+            }else{
+                while(true){
+                    if(vc.grab()){
+                        vc.retrieve(vframe);
+                        count++;
+                        if(count % 17 == 0){
+                            face face = model.getface(vframe.clone());
+                            
+                            if(face != null){
+                                index++;
+                                imwrite("G:\\Uni\\third_year\\DSP\\"
+                                        + "faceRecognition\\faces\\" 
+                                        + us.getID() + "_" + imgNum + ".png", 
+                                        face.crop);
+                                imgNum++;
+                            }
+                            try {
+                                Graphics graphic = camPanel.getGraphics();
+                                cc.detectMultiScale(vframe, mor);
+                                for(Rect rect : mor.toArray()){
+                                    Imgproc.rectangle(vframe, new Point(rect.x, 
+                                        rect.y), new Point(rect.x + rect.width, 
+                                                rect.y + rect.height), 
+                                                new Scalar(0,255,0), 2);
+                                }
+                    
+                                //display modified frame
+                                Imgcodecs.imencode(".bmp", vframe, mob);
+                                Image im;
+
+                                im = ImageIO.read(new ByteArrayInputStream(
+                                        mob.toArray()));
+                                BufferedImage bi = (BufferedImage) im;
+
+                                graphic.drawImage(bi, 0, 0, camPanel.getWidth(), 
+                                camPanel.getHeight(), 0, 0, bi.getWidth(), 
+                                bi.getHeight(), null);
+                            } catch (IOException ex) {
+                                Logger.getLogger(faceRecognition.class.getName
+                                                ()).log(Level.SEVERE, null, ex);
+                            }
+                            
+                            if(index == 10){
+                                us.updateCount(index);
+                                db.updateImgCount();
+                                changeMode.setEnabled(true);
+                                captureMode = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }else if(s.contains("2")){
             throw new NullPointerException();
         }else{
@@ -122,7 +163,8 @@ public class faceRecognition extends javax.swing.JFrame {
                     
                     //display modified frame
                     Imgcodecs.imencode(".bmp", vframe, mob);
-                    Image im = ImageIO.read(new ByteArrayInputStream(mob.toArray()));
+                    Image im = ImageIO.read(new ByteArrayInputStream(
+                            mob.toArray()));
                     BufferedImage bi = (BufferedImage) im;
 
                     graphic.drawImage(bi, 0, 0, camPanel.getWidth(), 
@@ -209,7 +251,8 @@ public class faceRecognition extends javax.swing.JFrame {
 
             changeMode.setEnabled(false);
         } catch (InterruptedException ex) {
-            Logger.getLogger(faceRecognition.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(faceRecognition.class.getName()).log(Level.SEVERE, 
+                    null, ex);
         }
 
     }//GEN-LAST:event_changeModeActionPerformed

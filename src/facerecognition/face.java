@@ -11,27 +11,28 @@ public class face {
         public Point rEye;
         public Mat crop;
         
-        public face(){
-            
-        }
-        
+        //a face consists of two eyes
         public face(Point lEye, Point rEye){
             this.lEye = lEye;
             this.rEye = rEye;
         }
         
+        //get left eye
         public Point getLEye(){
             return lEye;   
         }
         
+        //get right eye
         public Point getREye(){
             return rEye;
         }
         
+        //get the currently saved crop
         public Mat getCrop(){
             return crop;
         }
         
+        //set the crop
         public void setCrop(Mat temp){
             crop = temp;
         }

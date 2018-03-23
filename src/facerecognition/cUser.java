@@ -10,6 +10,14 @@ public class cUser {
         return id;
     }
     
+    public void setID(String uID){
+        this.id = uID;
+    }
+    
+    public void setImageCount(int nimagecount){
+        this.imageCount = nimagecount;
+    }
+    
     public int getImageCount(){
         return imageCount;
     }
