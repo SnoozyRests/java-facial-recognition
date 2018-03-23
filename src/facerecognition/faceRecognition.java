@@ -88,8 +88,7 @@ public class faceRecognition extends javax.swing.JFrame {
                             
                             if(face != null){
                                 index++;
-                                imwrite("G:\\Uni\\third_year\\DSP\\"
-                                        + "faceRecognition\\faces\\" 
+                                imwrite("G:\\Uni\\third_year\\DSP\\faceRecognition\\src\\faces" 
                                         + us.getID() + "_" + imgNum + ".png", 
                                         face.crop);
                                 imgNum++;
